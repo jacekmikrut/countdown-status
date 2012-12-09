@@ -1,0 +1,251 @@
+#!/bin/bash
+#
+# This file contains tests for the countdown-status app.
+# Author: Jacek Mikrut (jacekmikrut.software at gmail.com)
+#
+# Copyright (c) 2012 Jacek Mikrut
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Test framework:
+
+number_of_assertions=0
+failed_assertion_messages=()
+
+function precondition() {
+  if ! eval "$1"; then
+    echo "Precondition failed."
+    echo "Line ${BASH_LINENO[1]}: `sed -n \"${BASH_LINENO[1]}p\" ${BASH_SOURCE[0]}`"
+    exit 1
+  fi
+}
+
+function assert_match() {
+  ((number_of_assertions++))
+  if [[ "$1" =~ $2 ]]; then
+    echo -n "."
+  else
+    echo -n "E"
+    failed_assertion_messages[${#failed_assertion_messages[@]}]="${BASH_LINENO[1]}: expected '$1' to match '$2'"
+  fi
+}
+
+function assert_true() {
+  ((number_of_assertions++))
+  if eval "$1"; then
+    echo -n "."
+  else
+    echo -n "E"
+    failed_assertion_messages[${#failed_assertion_messages[@]}]="${BASH_LINENO[1]}: expected $1 to be true, but wasn't."
+  fi
+}
+
+function execute() {
+  test
+  after_each
+}
+
+function echo_failed_assertion_messages() {
+  if [[ ${#failed_assertion_messages[@]} -eq 0 ]]; then return; fi
+
+  echo
+  echo "Failed assertions:"
+  for message in "${failed_assertion_messages[@]}"; do
+    echo $message
+  done
+}
+
+function echo_summary() {
+  echo
+  echo "$number_of_assertions assertions, ${#failed_assertion_messages[@]} failures."
+}
+
+# Test helper methods
+
+function before_all() {
+  this_script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  HOME="$this_script_dir"
+  default_data_file_path="$HOME/.countdown-status-data"
+  custom_data_file_path="$HOME/.countdown-status-data-custom"
+}
+
+function after_all() {
+  echo
+  echo_failed_assertion_messages
+  echo_summary
+}
+
+function remove_file_if_exists() {
+  [[ -e "$1" ]] && rm "$1"
+}
+
+function after_each {
+  remove_file_if_exists "$default_data_file_path"
+  remove_file_if_exists  "$custom_data_file_path"
+}
+
+function when_the_default_data_file_does_not_exist() {
+  precondition "[[ ! -e $default_data_file_path ]]"
+}
+
+function when_the_custom_data_file_does_not_exist() {
+  precondition "[[ ! -e $custom_data_file_path ]]"
+}
+
+function when_app_executed_without_arguments() {
+  output=`"$this_script_dir/countdown-status"`
+}
+
+function when_app_executed_with() {
+  output=`"$this_script_dir/countdown-status" "$@"`
+}
+
+function when_the_data_file_has_not_the_proper_header() {
+  touch "$default_data_file_path"
+}
+
+function its_output_should_match() {
+  assert_match "$output" "$1"
+}
+
+function it_should_not_create_the_default_data_file() {
+  assert_true "[[ ! -e $default_data_file_path ]]"
+}
+
+function it_should_not_create_the_custom_data_file() {
+  assert_true "[[ ! -e $custom_data_file_path ]]"
+}
+
+function it_should_create_the_default_data_file() {
+  assert_true "[[ -e $default_data_file_path ]]"
+}
+
+function it_should_create_the_custom_data_file() {
+  assert_true "[[ -e $custom_data_file_path ]]"
+}
+
+# Tests:
+
+before_all
+
+function test() {
+  when_the_default_data_file_does_not_exist
+  when_app_executed_without_arguments
+  its_output_should_match "OFF"
+  it_should_not_create_the_default_data_file
+}
+execute
+
+function test() {
+  when_the_default_data_file_does_not_exist
+  when_app_executed_with -s 9
+  its_output_should_match "0:09|0:08"
+  it_should_create_the_default_data_file
+}
+execute
+
+function test() {
+  when_the_default_data_file_does_not_exist
+  when_app_executed_with -m 5
+  its_output_should_match "5:00|4:59"
+  it_should_create_the_default_data_file
+}
+execute
+
+function test() {
+  when_the_default_data_file_does_not_exist
+  when_app_executed_with -h 3
+  its_output_should_match "3:00:00|2:59:59"
+  it_should_create_the_default_data_file
+}
+execute
+
+function test() {
+  when_the_default_data_file_does_not_exist
+  when_app_executed_with -h 1 -m 2 -s 4
+  its_output_should_match "1:02:04|1:02:03"
+  it_should_create_the_default_data_file
+}
+execute
+
+function test() {
+  when_app_executed_with -m 5
+  when_app_executed_with -s 9
+  its_output_should_match "0:09|0:08"
+}
+execute
+
+function test() {
+  when_app_executed_with -m 5
+  when_app_executed_without_arguments
+  its_output_should_match "5:00|4:59"
+}
+execute
+
+function test() {
+  when_app_executed_with -m 5
+  sleep 2
+  when_app_executed_without_arguments
+  its_output_should_match "4:58|4:57"
+}
+execute
+
+function test() {
+  when_the_default_data_file_does_not_exist
+  when_the_custom_data_file_does_not_exist
+  when_app_executed_with -f $custom_data_file_path
+  its_output_should_match "OFF"
+  it_should_not_create_the_default_data_file
+  it_should_not_create_the_custom_data_file
+}
+execute
+
+function test() {
+  when_the_default_data_file_does_not_exist
+  when_the_custom_data_file_does_not_exist
+  when_app_executed_with -f $custom_data_file_path -m 10
+  its_output_should_match "10:00|9:59"
+  it_should_not_create_the_default_data_file
+  it_should_create_the_custom_data_file
+}
+execute
+
+function test() {
+  when_app_executed_with -f $custom_data_file_path -m 10
+  when_app_executed_with -f $custom_data_file_path
+  its_output_should_match "10:00|9:59"
+}
+execute
+
+function test() {
+  when_the_data_file_has_not_the_proper_header
+  when_app_executed_without_arguments
+  its_output_should_match "doesn't contain the proper header."
+}
+execute
+
+function test() {
+  when_app_executed_with -s 0
+  its_output_should_match "Time's up"
+}
+execute
+
+after_all
+exit 0

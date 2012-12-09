@@ -28,13 +28,9 @@
 
 function main() {
   set_default_variable_values
-  if requested_help "$@"; then
-    echo_help
-    exit 0
-  elif requested_version "$@"; then
-    echo_version
-    exit 0
-  fi
+
+  if requested_help     "$@"; then echo_help;    exit 0; fi
+  if requested_version  "$@"; then echo_version; exit 0; fi
   read_script_arguments "$@"
 
   if data_file_exists; then

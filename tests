@@ -262,5 +262,12 @@ function test() {
 }
 execute
 
+function test() {
+  when_app_executed_with -m 30 -b "Time left: "
+  when_app_executed_without_arguments
+  its_output_should_match "Time left: (30:00|29:59)"
+}
+execute
+
 after_all
 exit 0

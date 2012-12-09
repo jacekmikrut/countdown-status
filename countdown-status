@@ -54,6 +54,7 @@ function set_default_variable_values() {
   app_version="0.0.1"
   data_file_path="$HOME/.countdown-status-data"
   data_file_header="This is a $app_name app's data file. Please do not modify it."
+  prefix_message=""
   time_is_up_message="Time's up!"
 }
 
@@ -63,11 +64,12 @@ function add_remaining_seconds_to_set() {
 }
 
 function read_script_arguments() {
-  while getopts ":h:m:s:u:f:" name; do
+  while getopts ":h:m:s:b:u:f:" name; do
     case $name in
       h) add_remaining_seconds_to_set $(($OPTARG*60*60));;
       m) add_remaining_seconds_to_set $(($OPTARG*60   ));;
       s) add_remaining_seconds_to_set $(($OPTARG      ));;
+      b) prefix_message_to_set="$OPTARG";;
       u) time_is_up_message_to_set="$OPTARG";;
       f) data_file_path="$OPTARG";;
     esac
@@ -88,6 +90,7 @@ function echo_wrong_data_file_header() {
 
 function read_data_from_file() {
   seconds_from_1970_to_stop_at=`grep -o -P "(?<=^s:)\d+" "$data_file_path"`
+  prefix_message=`grep -o -P "(?<=^b:).*" "$data_file_path"`
   time_is_up_message=`grep -o -P "(?<=^u:).*" "$data_file_path"`
 }
 
@@ -98,17 +101,19 @@ function process_data_from_file() {
 
 function apply_data_from_script_arguments() {
   if [[ -n $remaining_seconds_to_set ]]; then remaining_seconds=$remaining_seconds_to_set; fi
+  if [[ -n $prefix_message_to_set ]]; then prefix_message=$prefix_message_to_set; fi
   if [[ -n $time_is_up_message_to_set ]]; then time_is_up_message=$time_is_up_message_to_set; fi
 }
 
 function needs_to_save_data() {
-  [[ -n $remaining_seconds_to_set ]] || [[ -n $time_is_up_message_to_set ]]
+  [[ -n $remaining_seconds_to_set ]] || [[ -n $prefix_message_to_set ]] || [[ -n $time_is_up_message_to_set ]]
 }
 
 function save_data_to_file() {
   data_file_content="$data_file_header"
   data_file_content="$data_file_content\nv:$app_version"
   data_file_content="$data_file_content\ns:`date -d "$remaining_seconds seconds" +%s`"
+  data_file_content="$data_file_content\nb:$prefix_message"
   data_file_content="$data_file_content\nu:$time_is_up_message"
 
   echo -e "$data_file_content" > "$data_file_path"
@@ -125,6 +130,9 @@ function echo_status() {
     remaining_hours=$(($remaining_seconds/60/60))
     remaining_minutes_mod_60=$(($remaining_seconds/60%60))
     remaining_seconds_mod_60=$(($remaining_seconds%60))
+
+    echo -n "$prefix_message"
+
     if [[ $remaining_hours -gt 0 ]]; then
       printf "%d:%02d:%02d\n" $remaining_hours $remaining_minutes_mod_60 $remaining_seconds_mod_60
     else

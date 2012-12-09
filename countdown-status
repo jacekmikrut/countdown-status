@@ -60,7 +60,7 @@ function set_default_variable_values() {
 }
 
 function add_remaining_seconds_to_set() {
-  if [[ -z $remaining_seconds_to_set ]]; then remaining_seconds_to_set=0; fi
+  if [[ -z ${remaining_seconds_to_set+x} ]]; then remaining_seconds_to_set=0; fi
   ((remaining_seconds_to_set=remaining_seconds_to_set + $1))
 }
 
@@ -103,14 +103,14 @@ function process_data_from_file() {
 }
 
 function apply_data_from_script_arguments() {
-  if [[ -n $remaining_seconds_to_set ]]; then remaining_seconds=$remaining_seconds_to_set; fi
-  if [[ -n $prefix_message_to_set ]]; then prefix_message=$prefix_message_to_set; fi
-  if [[ -n $suffix_message_to_set ]]; then suffix_message=$suffix_message_to_set; fi
-  if [[ -n $time_is_up_message_to_set ]]; then time_is_up_message=$time_is_up_message_to_set; fi
+  if [[ -n ${remaining_seconds_to_set+x} ]]; then remaining_seconds=$remaining_seconds_to_set; fi
+  if [[ -n ${prefix_message_to_set+x} ]]; then prefix_message=$prefix_message_to_set; fi
+  if [[ -n ${suffix_message_to_set+x} ]]; then suffix_message=$suffix_message_to_set; fi
+  if [[ -n ${time_is_up_message_to_set+x} ]]; then time_is_up_message=$time_is_up_message_to_set; fi
 }
 
 function needs_to_save_data() {
-  [[ -n $remaining_seconds_to_set ]] || [[ -n $prefix_message_to_set ]] || [[ -n $suffix_message_to_set ]] || [[ -n $time_is_up_message_to_set ]]
+  [[ -n ${remaining_seconds_to_set+x} ]] || [[ -n ${prefix_message_to_set+x} ]] || [[ -n ${suffix_message_to_set+x} ]] || [[ -n ${time_is_up_message_to_set+x} ]]
 }
 
 function save_data_to_file() {

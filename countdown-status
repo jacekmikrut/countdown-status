@@ -54,12 +54,14 @@ function main() {
 
 function set_default_variable_values() {
             app_name="countdown-status"
+         script_name="countdown-status"
          app_version="0.0.1"
          app_webpage="https://github.com/jacekmikrut/countdown-status"
-         script_name="countdown-status"
+
       data_file_name=".countdown-status-data"
       data_file_path="$HOME/$data_file_name"
     data_file_header="This is a $app_name app's data file. Please do not modify it."
+
          off_message="OFF"
       prefix_message=""
       suffix_message=""

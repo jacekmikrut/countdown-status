@@ -31,6 +31,9 @@ function main() {
   if requested_help "$@"; then
     echo_help
     exit 0
+  elif requested_version "$@"; then
+    echo_version
+    exit 0
   fi
   read_script_arguments "$@"
 
@@ -70,9 +73,14 @@ function requested_help() {
   [[ "$1" == "--help" || "$1" == "help" ]]
 }
 
+function requested_version() {
+  [[ "$1" == "--version" || "$1" == "-v" ]]
+}
+
 function echo_help() {
   echo "Usage: $script_name [-<option> <value> [-<option> <value> [...]]]"
   echo "   or: $script_name --help (to display this information)"
+  echo "   or: $script_name --version | -v (to display the version)"
   echo
   echo "Options:"
   echo " -h <hours>     Set number of hours"
@@ -83,6 +91,10 @@ function echo_help() {
   echo " -a <message>   Set suffix message (default: \"$suffix_message\")"
   echo " -u <message>   Set 'time is up' message (default: \"$time_is_up_message\")"
   echo " -f <file-path> Use custom data file (default: \"~/$data_file_name\")"
+}
+
+function echo_version() {
+  echo "$app_name version $app_version"
 }
 
 function add_remaining_seconds_to_set() {

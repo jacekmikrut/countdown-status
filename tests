@@ -298,5 +298,17 @@ function test() {
 }
 execute
 
+function test() {
+  when_app_executed_with --version
+  its_output_should_match "version"
+}
+execute
+
+function test() {
+  when_app_executed_with -v
+  its_output_should_match "version"
+}
+execute
+
 after_all
 exit 0

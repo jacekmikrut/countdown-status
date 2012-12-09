@@ -292,5 +292,11 @@ function test() {
 }
 execute
 
+function test() {
+  when_app_executed_with --help
+  its_output_should_match "Usage:"
+}
+execute
+
 after_all
 exit 0

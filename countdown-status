@@ -104,7 +104,7 @@ function needs_to_save_data() {
 function save_data_to_file() {
   data_file_content="$data_file_header"
   data_file_content="$data_file_content\nv:$app_version"
-  data_file_content="$data_file_content\ns:`date -d "$remaining_seconds_to_set seconds" +%s`"
+  data_file_content="$data_file_content\ns:`date -d "$remaining_seconds seconds" +%s`"
 
   echo -e "$data_file_content" > "$data_file_path"
 }

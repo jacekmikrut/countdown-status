@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # countdown-status
-# Prints how much is left to a specified time.
+# Prints how much is left until a specified time.
 #
 # Author: Jacek Mikrut (jacekmikrut.software at gmail.com)
 #

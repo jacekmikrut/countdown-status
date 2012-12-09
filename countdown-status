@@ -54,6 +54,7 @@ function set_default_variable_values() {
          app_version="0.0.1"
       data_file_path="$HOME/.countdown-status-data"
     data_file_header="This is a $app_name app's data file. Please do not modify it."
+         off_message="OFF"
       prefix_message=""
       suffix_message=""
   time_is_up_message="Time's up!"
@@ -65,11 +66,12 @@ function add_remaining_seconds_to_set() {
 }
 
 function read_script_arguments() {
-  while getopts ":h:m:s:b:a:u:f:" name; do
+  while getopts ":h:m:s:o:b:a:u:f:" name; do
     case $name in
       h) add_remaining_seconds_to_set $(($OPTARG*60*60));;
       m) add_remaining_seconds_to_set $(($OPTARG*60   ));;
       s) add_remaining_seconds_to_set $(($OPTARG      ));;
+      o)                  off_message="$OPTARG";;
       b)        prefix_message_to_set="$OPTARG";;
       a)        suffix_message_to_set="$OPTARG";;
       u)    time_is_up_message_to_set="$OPTARG";;
@@ -129,7 +131,7 @@ function save_data_to_file() {
 
 function echo_status() {
   if [[ -z $remaining_seconds ]]; then
-    echo "OFF"
+    echo "$off_message"
 
   elif [[ $remaining_seconds -le 0 ]]; then
     echo "$time_is_up_message"

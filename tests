@@ -284,5 +284,13 @@ function test() {
 }
 execute
 
+function test() {
+  when_the_default_data_file_does_not_exist
+  when_app_executed_with -o "Turned off."
+  its_output_should_match "Turned off."
+  it_should_not_create_the_default_data_file
+}
+execute
+
 after_all
 exit 0

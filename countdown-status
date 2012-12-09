@@ -54,6 +54,7 @@ function set_default_variable_values() {
   app_version="0.0.1"
   data_file_path="$HOME/.countdown-status-data"
   data_file_header="This is a $app_name app's data file. Please do not modify it."
+  time_is_up_message="Time's up!"
 }
 
 function add_remaining_seconds_to_set() {
@@ -62,11 +63,12 @@ function add_remaining_seconds_to_set() {
 }
 
 function read_script_arguments() {
-  while getopts ":h:m:s:f:" name; do
+  while getopts ":h:m:s:u:f:" name; do
     case $name in
       h) add_remaining_seconds_to_set $(($OPTARG*60*60));;
       m) add_remaining_seconds_to_set $(($OPTARG*60   ));;
       s) add_remaining_seconds_to_set $(($OPTARG      ));;
+      u) time_is_up_message_to_set="$OPTARG";;
       f) data_file_path="$OPTARG";;
     esac
   done
@@ -86,6 +88,7 @@ function echo_wrong_data_file_header() {
 
 function read_data_from_file() {
   seconds_from_1970_to_stop_at=`grep -o -P "(?<=^s:)\d+" "$data_file_path"`
+  time_is_up_message=`grep -o -P "(?<=^u:).*" "$data_file_path"`
 }
 
 function process_data_from_file() {
@@ -95,16 +98,18 @@ function process_data_from_file() {
 
 function apply_data_from_script_arguments() {
   if [[ -n $remaining_seconds_to_set ]]; then remaining_seconds=$remaining_seconds_to_set; fi
+  if [[ -n $time_is_up_message_to_set ]]; then time_is_up_message=$time_is_up_message_to_set; fi
 }
 
 function needs_to_save_data() {
-  [[ -n $remaining_seconds_to_set ]]
+  [[ -n $remaining_seconds_to_set ]] || [[ -n $time_is_up_message_to_set ]]
 }
 
 function save_data_to_file() {
   data_file_content="$data_file_header"
   data_file_content="$data_file_content\nv:$app_version"
   data_file_content="$data_file_content\ns:`date -d "$remaining_seconds seconds" +%s`"
+  data_file_content="$data_file_content\nu:$time_is_up_message"
 
   echo -e "$data_file_content" > "$data_file_path"
 }
@@ -114,7 +119,7 @@ function echo_status() {
     echo "OFF"
 
   elif [[ $remaining_seconds -le 0 ]]; then
-    echo "Time's up!"
+    echo "$time_is_up_message"
 
   else
     remaining_hours=$(($remaining_seconds/60/60))

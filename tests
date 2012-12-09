@@ -247,5 +247,20 @@ function test() {
 }
 execute
 
+function test() {
+  when_app_executed_with -s 0 -u "Time's up, relax!"
+  when_app_executed_without_arguments
+  its_output_should_match "Time's up, relax!"
+}
+execute
+
+function test() {
+  when_app_executed_with -s 0
+  when_app_executed_with -u "Time's up, relax!"
+  when_app_executed_without_arguments
+  its_output_should_match "Time's up, relax!"
+}
+execute
+
 after_all
 exit 0

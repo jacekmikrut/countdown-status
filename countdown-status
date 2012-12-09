@@ -59,6 +59,7 @@ function main() {
 function set_default_variable_values() {
             app_name="countdown-status"
          app_version="0.0.1"
+         app_webpage="https://github.com/jacekmikrut/countdown-status"
          script_name="countdown-status"
       data_file_name=".countdown-status-data"
       data_file_path="$HOME/$data_file_name"
@@ -91,6 +92,8 @@ function echo_help() {
   echo " -a <message>   Set suffix message (default: \"$suffix_message\")"
   echo " -u <message>   Set 'time is up' message (default: \"$time_is_up_message\")"
   echo " -f <file-path> Use custom data file (default: \"~/$data_file_name\")"
+  echo
+  echo "More info at $app_webpage"
 }
 
 function echo_version() {

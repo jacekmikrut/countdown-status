@@ -269,5 +269,12 @@ function test() {
 }
 execute
 
+function test() {
+  when_app_executed_with -m 30 -a " left."
+  when_app_executed_without_arguments
+  its_output_should_match "(30:00|29:59) left."
+}
+execute
+
 after_all
 exit 0
